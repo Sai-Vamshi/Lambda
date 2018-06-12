@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 from django.shortcuts import render
 from yellowant import YellowAnt
-from yellowant_api.models import UserIntegration, aws
+from ..yellowant_api.models import UserIntegration, aws
 # Create your views here.
 
 
@@ -46,18 +46,20 @@ def userdetails(request):
 
 
 def delete_integration(request, acccount_id=None):
-    """ Function for deleting an integration by taking the id as input."""
-    access_token_dict = UserIntegration.objects.get(id=acccount_id)
-    access_token = access_token_dict.yellowant_integration_token
-    user_integration_id = access_token_dict.yellowant_integration_id
-    url = "https://api.yellowant.com/api/user/integration/%s" % (user_integration_id)
-    yellowant_user = YellowAnt(access_token=access_token)
+    # Function for deleting an integration by taking the id as input.
+    access_token_dict = UserIntegration.objects.get(id=id)
+    user_id = access_token_dict.user
+    if user_id == request.user.id:
 
-    # deletes all the data related to that integration
-    yellowant_user.delete_user_integration(id=user_integration_id)
-    response_json = UserIntegration.objects.get(yellowant_integration_token=access_token).delete()
-    return HttpResponse("successResponse", status=200)
-
+        access_token = access_token_dict.yellowant_integration_token
+        user_integration_id = access_token_dict.yellowant_integration_id
+        url = "https://api.yellowant.com/api/user/integration/%s" % (user_integration_id)
+        yellowant_user = YellowAnt(access_token=access_token)
+        profile = yellowant_user.delete_user_integration(id=user_integration_id)
+        response_json = UserIntegration.objects.get(yellowant_integration_token=access_token).delete()
+        return HttpResponse("successResponse", status=204)
+    else:
+        return HttpResponse("Not Authenticated", status=403)
 
 def view_integration(request, account_id=None):
 

@@ -4,7 +4,7 @@
 """
 from yellowant.messageformat import MessageClass, MessageAttachmentsClass, MessageButtonsClass
 import boto3
-from yellowant_api.models import aws, UserIntegration
+from ..yellowant_api.models import aws, UserIntegration
 import json
 
 
@@ -43,7 +43,6 @@ class CommandCenter(object):
     def marker(self, args, page):
         """Returns the marker of the required page No."""
         region = args['Region']
-        print(page)
         aws_lambda = boto3.client(service_name='lambda', region_name=region,
                                   api_version=None, use_ssl=True, verify=None,
                                   endpoint_url=None, aws_access_key_id=self.aws_access_key,
@@ -75,20 +74,23 @@ class CommandCenter(object):
         message = MessageClass()
         attachment = MessageAttachmentsClass()
         region = args['Region']
-        # page = int(args["Page"])
+        # Page is an optional argument
         try:
             page = int(args["Page"])
         except:
             page = 1
-        # If page no. is greater than 1 get the marker of the specified field
+        # If page no. is greater than 1 get the marker of the specified field and use it to get the functions in that page
         if page > 1:
             aws_lambda = boto3.client(service_name='lambda', region_name=region,
                                       api_version=None, use_ssl=True, verify=None,
                                       endpoint_url=None, aws_access_key_id=self.aws_access_key,
                                       aws_secret_access_key=self.aws_secret_token,
                                       aws_session_token=None, config=None)
+
+            #Snippet added to check the Page No. entered is valid or not
             check = aws_lambda.get_account_settings()
-            max_page = int(check['AccountUsage']['FunctionCount'])/10
+            max_page = int(int(check['AccountUsage']['FunctionCount'])/10)+1
+
             # If page no. entered is greter than max pages of the Lambda then return this
             if page > max_page:
                 message.message_text = "The Page no. entered is more than the pages present"
@@ -97,21 +99,50 @@ class CommandCenter(object):
             next_marker = self.marker(args, page)
             response = aws_lambda.list_functions(Marker=next_marker, MaxItems=10)
             functions = [Function['FunctionName'] for Function in response['Functions']]
-            # Button to get the functions in next page
+
+            # Attaching functions and thier respective Buttons
             for Function in functions:
                 attachment = MessageAttachmentsClass()
                 attachment.title = Function
                 message.attach(attachment)
 
-            button = MessageButtonsClass()
-            button.text = "Next Page"
-            button.value = "Next Page"
-            button.name = "Next Page"
-            button.command = {"service_application": self.yellowant_integration_id,
-                              "function_name": "next-page",
-                              "data": {"NextMarker": response['NextMarker'], "Region": region}}
-            attachment.attach_button(button)
-            message.message_text = ("The Functions in Page %d are:" % page)
+                # Button to get the logs of the function
+                button = MessageButtonsClass()
+                button.text = "Get Logs"
+                button.value = "Get Logs"
+                button.name = "Get Logs"
+                button.command = {"service_application": self.yellowant_integration_id,
+                                  "function_name": "get-logs",
+                                  "data": {"FunctionName": Function, "Region": region}}
+                attachment.attach_button(button)
+
+                # Button to invoke the function
+                button1 = MessageButtonsClass()
+                button1.text = "Invoke"
+                button1.value = "Invoke"
+                button1.name = "Invoke"
+                button1.command = {"service_application": self.yellowant_integration_id,
+                                   "function_name": "invoke-async",
+                                   "data": {"FunctionName": Function, "Region": region},
+                                   "inputs": ["input"]}
+                attachment.attach_button(button1)
+
+            try:
+                # Button to get the functions in next page, Checks actually if next page exists or not
+                attachment = MessageAttachmentsClass()
+                button2 = MessageButtonsClass()
+                button2.text = "Next Page"
+                button2.value = "Next Page"
+                button2.name = "Next Page"
+                button2.command = {"service_application": self.yellowant_integration_id,
+                                   "function_name": "next-page",
+                                   "data": {"NextMarker": response['NextMarker'], "Region": region}}
+                attachment.attach_button(button2)
+                message.message_text = ("The Functions in Page %d are:" % page)
+
+            except:
+                message.message_text = "This is the last page"
+
         # If page is 1 or not specified than return the functions in the 1st page
         else:
             aws_lambda = boto3.client(service_name='lambda', region_name=region,
@@ -119,6 +150,8 @@ class CommandCenter(object):
                                       endpoint_url=None, aws_access_key_id=self.aws_access_key,
                                       aws_secret_access_key=self.aws_secret_token,
                                       aws_session_token=None, config=None)
+
+            # Display first 10 functions
             response = aws_lambda.list_functions(MaxItems=10)
             functions = [Function['FunctionName'] for Function in response['Functions']]
             for Function in functions:
@@ -126,23 +159,48 @@ class CommandCenter(object):
                 attachment.title = Function
                 message.attach(attachment)
 
-            button = MessageButtonsClass()
-            button.text = "Next Page"
-            button.value = "Next Page"
-            button.name = "Next Page"
-            button.command = {"service_application": self.yellowant_integration_id,
-                              "function_name": "next-page",
-                              "data": {"NextMarker": response['NextMarker'], "Region": region}}
-            attachment.attach_button(button)
-            # message.message_text = "The Functions in %d present are:", page
-            message.message_text = "The Functions present are:"
+                # Button to get the logs of the function
+                button = MessageButtonsClass()
+                button.text = "Get Logs"
+                button.value = "Get Logs"
+                button.name = "Get Logs"
+                button.command = {"service_application": self.yellowant_integration_id,
+                                  "function_name": "get-logs",
+                                  "data": {"FunctionName": Function, "Region": region}}
+                attachment.attach_button(button)
+
+                # Button to invoke the function
+                button1 = MessageButtonsClass()
+                button1.text = "Invoke"
+                button1.value = "Invoke"
+                button1.name = "Invoke"
+                button1.command = {"service_application": self.yellowant_integration_id,
+                                   "function_name": "invoke-async",
+                                   "data": {"Function-Name": Function, "Region": region},
+                                   "inputs": ["input"]}
+                attachment.attach_button(button1)
+
+            try:
+                # Button to get the functions in next page, Checks actually if next page exists or not
+                attachment = MessageAttachmentsClass()
+                button2 = MessageButtonsClass()
+                button2.text = "Next Page"
+                button2.value = "Next Page"
+                button2.name = "Next Page"
+                button2.command = {"service_application": self.yellowant_integration_id,
+                                   "function_name": "next-page",
+                                   "data": {"NextMarker": response['NextMarker'], "Region": region}}
+                attachment.attach_button(button2)
+                message.message_text = ("The Functions in Page %d are:" % page)
+
+            except:
+                message.message_text = "This is the last page"
 
         return message.to_json()
 
     def next_page(self, args):
         """This returns the list of functions in the next page"""
         message = MessageClass()
-        attachment = MessageAttachmentsClass()
         region = args['Region']
         next_marker = args['NextMarker']
         aws_lambda = boto3.client(service_name='lambda', region_name=region,
@@ -150,21 +208,50 @@ class CommandCenter(object):
                                   endpoint_url=None, aws_access_key_id=self.aws_access_key,
                                   aws_secret_access_key=self.aws_secret_token,
                                   aws_session_token=None, config=None)
+        # Gets the next ten functions in lambda
         response = aws_lambda.list_functions(Marker=next_marker, MaxItems=10)
         functions = [Function['FunctionName'] for Function in response['Functions']]
         for Function in functions:
+
+            attachment = MessageAttachmentsClass()
             attachment.title = Function
-            message.attach(attachment)
-        try:
+
+            # Button to get the logs of the function
             button = MessageButtonsClass()
-            button.text = "Next Page"
-            button.value = "Next Page"
-            button.name = "Next Page"
+            button.text = "Get Logs"
+            button.value = "Get Logs"
+            button.name = "Get Logs"
             button.command = {"service_application": self.yellowant_integration_id,
-                              "function_name": "next-page",
-                              "data": {"NextMarker": response['NextMarker'], "Region": region}}
+                              "function_name": "get-logs",
+                              "data": {"FunctionName": Function, "Region": region}}
             attachment.attach_button(button)
+
+            # Button to invoke the function
+            button1 = MessageButtonsClass()
+            button1.text = "Invoke"
+            button1.value = "Invoke"
+            button1.name = "Invoke"
+            button1.command = {"service_application": self.yellowant_integration_id,
+                               "function_name": "invoke-async",
+                               "data": {"Function-Name": Function, "Region": region},
+                               "inputs": ["input"]}
+            attachment.attach_button(button1)
+            message.attach(attachment)
+
+        try:
+            # Button to get the functions in next page, Checks actually if next page exists or not
+            attachment = MessageAttachmentsClass()
+            button2 = MessageButtonsClass()
+            button2.text = "Next Page"
+            button2.value = "Next Page"
+            button2.name = "Next Page"
+            button2.command = {"service_application": self.yellowant_integration_id,
+                               "function_name": "next-page",
+                               "data": {"NextMarker": response['NextMarker'], "Region": region}}
+            attachment.attach_button(button2)
+            message.attach(attachment)
             message.message_text = "The Functions present are:"
+
         except:
             message.message_text = "This is the Last page and The Functions present are: "
 
@@ -176,21 +263,23 @@ class CommandCenter(object):
         input_args = json.dumps(args["input"])
         region = args['Region']
         message = MessageClass()
+        # try except block to check the Arguments are compatible with function or not
         try:
             aws_lambda = boto3.client(service_name='lambda', region_name=region,
                                       api_version=None, use_ssl=True, verify=None,
                                       endpoint_url=None, aws_access_key_id=self.aws_access_key,
                                       aws_secret_access_key=self.aws_secret_token,
                                       aws_session_token=None, config=None)
-            print(type(input_args))
             response = aws_lambda.invoke_async(
                 FunctionName=functionname,
                 InvokeArgs=input_args,
             )
-            #print(response)
+
             message.message_text = "The Function is invoked"
+
         except:
             message.message_text = "The Function name and Arguments provided are incompatible :"
+
         return message.to_json()
 
     def settings(self, args):
@@ -210,21 +299,6 @@ class CommandCenter(object):
         message.message_text = "The Function Count is:"
         return message.to_json()
 
-    # def list_function_inactive(self, args):
-    #     """ To create a bucket for storing data in AWS S3"""
-    #     message = MessageClass()
-    #     attachment = MessageAttachmentsClass()
-    #     region = args['Region']
-    #     aws_lambda = boto3.client(service_name='lambda', region_name=region,
-    #                               api_version=None, use_ssl=True, verify=None,
-    #                               endpoint_url=None, aws_access_key_id=self.aws_access_key,
-    #                               aws_secret_access_key=self.aws_secret_token,
-    #                               aws_session_token=None, config=None)
-    #     response = aws_lambda.list_functions(MaxItems=50)
-    #     functions = [Function['FunctionName'] for Function in response['Functions']]
-    #     for Function in functions:
-    #         attachment = MessageAttachmentsClass()
-    #         attachment.title = Function
     def log_stream(self, args, function_name):
         """To get the log Stream name  of the function, value is used in other
            function to get logs"""
@@ -234,10 +308,17 @@ class CommandCenter(object):
                                 endpoint_url=None, aws_access_key_id=self.aws_access_key,
                                 aws_secret_access_key=self.aws_secret_token,
                                 aws_session_token=None, config=None)
-        log_group_name = "/aws/lambda/"+function_name
-        response = aws_logs.describe_log_streams(
-            logGroupName=log_group_name, limit=1)
-        return response['logStreams'][0]['logStreamName']
+
+        # To get the logstreamName if exists or return 0
+        try:
+            log_group_name = "/aws/lambda/"+function_name
+            response = aws_logs.describe_log_streams(
+                logGroupName=log_group_name, limit=1)
+            return response['logStreams'][0]['logStreamName']
+
+        except:
+            return 0
+
 
     def get_logs(self, args):
         """To get the logs of the function"""
@@ -246,20 +327,42 @@ class CommandCenter(object):
         message = MessageClass()
         attachment = MessageAttachmentsClass()
         logstream = self.log_stream(args, function_name)
+
+        # If Logstream is 0 then the Logs dosen't exist
+        if logstream ==0:
+            message.message_text = "There are no logs for that Function or the Log" \
+                                   " group name and the Function Name are mismatched"
+            return message.to_json()
+
         aws_lambda = boto3.client(service_name='logs', region_name=region,
                                   api_version=None, use_ssl=True, verify=None,
                                   endpoint_url=None, aws_access_key_id=self.aws_access_key,
                                   aws_secret_access_key=self.aws_secret_token,
                                   aws_session_token=None, config=None)
         log_group_name = "/aws/lambda/"+function_name
+
+        # The following while loop is to find the i till which last log exists, for usage in get_log_events
+        i = 0
+        strin=""
+        while strin != "START":
+            response = aws_lambda.get_log_events(
+                logGroupName=log_group_name,
+                logStreamName=logstream,
+                limit=i+1
+            )
+            string=str(response['events'][0]['message'])
+            i = i+1
+            strin = string[:5]
+
+        #
         response = aws_lambda.get_log_events(
             logGroupName=log_group_name,
             logStreamName=logstream,
-            limit=5
+            limit=i
         )
         events = [event['message'] for event in response['events']]
         for event in events:
-            attachment.title = event
+            attachment.text = event
             message.attach(attachment)
 
         message.message_text = "The Event logs are:"

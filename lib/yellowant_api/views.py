@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from yellowant import YellowAnt
 from django.views.decorators.csrf import csrf_exempt
-from yellowant_command_center.command_center import CommandCenter
+from ..yellowant_command_center.command_center import CommandCenter
 import boto3
 from .models import YellowAntRedirectState, UserIntegration, aws
 
@@ -58,8 +58,6 @@ def yellowant_oauth_redirect(request):
 
     # get the access token for a user integration from YA against the code
     access_token_dict = ya_client.get_access_token(code)
-    # print(access_token_dict)
-    # print(type(access_token_dict))
     access_token = access_token_dict["access_token"]
 
     # reinitialize the YA SDK client with the user integration access token
@@ -98,7 +96,6 @@ def yellowant_oauth_redirect(request):
 def yellowant_api(request):
     """Receive user commands from YA"""
     data = json.loads(request.POST.get("data"))
-    # print(data)
     if data["verification_token"] == settings.YA_VERIFICATION_TOKEN:
         command = CommandCenter(data["user"], data['application'], data['function_name'],
                                 data['args'], data['application_invoke_name'])
@@ -129,8 +126,6 @@ def api_key(request):
                                   aws_access_key_id=api_token, aws_secret_access_key=api_secret,
                                   aws_session_token=None, config=None)
         response = aws_lambda.list_functions()
-        # for instance in instances:
-        #     a = instance.id
     except:
         return HttpResponse("Invalid credentials. Please try again")
 
