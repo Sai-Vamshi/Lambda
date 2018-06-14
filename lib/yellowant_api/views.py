@@ -24,7 +24,7 @@ def request_yellowant_oauth_code(request):
 
     # save the relation between user and state
     #  so that we can identify the user when YA returns the oauth2 code
-    YellowAntRedirectState.objects.create(user=user, state=state)
+    YellowAntRedirectState.objects.create(user=user.id, state=state)
 
     # Redirect the application user to the YA authentication page.
     # Note that we are passing state, this app's client id,

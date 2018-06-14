@@ -30,7 +30,7 @@ class UserIntegration(models.Model):
         yellowant_integration_token (str): Unique token per integration # This token allows your
         application to perform actions on the YA platform for the YA user integration.
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.IntegerField()
     yellowant_user_id = models.IntegerField(null=False)
     yellowant_team_subdomain = models.CharField(max_length=256, null=False)
     yellowant_integration_id = models.IntegerField(unique=True, null=False)
@@ -46,7 +46,7 @@ class YellowAntRedirectState(models.Model):
         user (User): Your application user
         state (str): A unique ID which helps in matching an oauth2 code from YA to a user
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.IntegerField()
     state = models.CharField(max_length=512, null=False)
 
 class aws(models.Model):
