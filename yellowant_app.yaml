@@ -1,0 +1,162 @@
+api_url: http://dc01837f.ngrok.io/yellowant-api/
+creator_email: saivamshipavan@gmail.com
+documentation_url: https://yellowant.com/documentation/
+functions:
+  get-logs:
+    function_type: 1
+    input_args:
+      FunctionName:
+        arg_type: 14
+        description: The Function Name of which logs are required
+        example: newtest
+        name: FunctionName
+        required: 1
+      Region:
+        arg_type: 14
+        description: The region of the functions
+        example: us-east-1
+        name: Region
+        required: 1
+    invoke_name: get-logs
+    is_active: 1
+    max_retries: 0
+    name: Get logs
+    output_keys: {}
+    privacy_mode: 0
+    rate_limited: 0
+    short_description: To get logs of AWS functions
+    user_rate_limit: 0.0
+  get-paginator:
+    function_type: 1
+    input_args: {}
+    invoke_name: get-paginator
+    is_active: 0
+    max_retries: 0
+    name: Get paginator
+    output_keys: {}
+    privacy_mode: 0
+    rate_limited: 0
+    short_description: Create a paginator for an operation.
+    user_rate_limit: 0.0
+  invoke-async:
+    function_type: 1
+    input_args:
+      Function-Name:
+        arg_type: 14
+        description: The name of the function
+        example: Hello World
+        name: Function-Name
+        required: 1
+      Region:
+        arg_type: 14
+        description: The Region of the function
+        example: us-east-1
+        name: Region
+        required: 1
+      input:
+        arg_type: 14
+        description: Input arguments for the function
+        example: '{"var1":"val1","key2":"val2"}'
+        name: input
+        required: 1
+    invoke_name: invoke-async
+    is_active: 1
+    max_retries: 0
+    name: Invoke Async
+    output_keys: {}
+    privacy_mode: 0
+    rate_limited: 0
+    short_description: Invokes the function in the Backend
+    user_rate_limit: 0.0
+  list-functions:
+    function_type: 1
+    input_args:
+      Page:
+        arg_type: 1
+        description: The Page No.
+        example: '2'
+        name: Page
+        required: 0
+      Region:
+        arg_type: 14
+        description: The region of the function
+        example: us-east-1
+        name: Region
+        required: 0
+    invoke_name: list-functions
+    is_active: 1
+    max_retries: 0
+    name: List Functions
+    output_keys: {}
+    privacy_mode: 0
+    rate_limited: 0
+    short_description: Lists all the functions running on Lambda
+    user_rate_limit: 0.0
+  next-page:
+    function_type: 1
+    input_args:
+      marker:
+        arg_type: 14
+        description: Marker....
+        example: qwertyuiuytresdfghjkl;kuytre3wertyhbvcxdse4567uiojkhjgfdcfghjklkuiyt6r53werhjmbnvc
+          vm,hgytreyu
+        name: marker
+        required: 1
+    invoke_name: next-page
+    is_active: 0
+    max_retries: 0
+    name: Next Page
+    output_keys: {}
+    privacy_mode: 0
+    rate_limited: 0
+    short_description: Lists the functions from next page
+    user_rate_limit: 0.0
+  region:
+    function_type: 1
+    input_args: {}
+    invoke_name: region
+    is_active: 0
+    max_retries: 0
+    name: Region
+    output_keys:
+      _keys:
+        list: '[list]:    List of List'
+      list:
+        Region_Name: '__unicode:    List  region  names'
+    privacy_mode: 0
+    rate_limited: 0
+    short_description: The region of the instance
+    user_rate_limit: 0.0
+  settings:
+    function_type: 1
+    input_args:
+      Region:
+        arg_type: 14
+        description: The region of the Lambda
+        example: us-east-1
+        name: Region
+        required: 1
+    invoke_name: settings
+    is_active: 1
+    max_retries: 0
+    name: settings
+    output_keys: {}
+    privacy_mode: 0
+    rate_limited: 0
+    short_description: The settings of the Lambda
+    user_rate_limit: 0.0
+icon_url: https://cdn-images-1.medium.com/max/1600/1*CAS2UKlhVhNT8O_TzD-YpA@2x.png
+install_page_url: https://yellowant.com/install/
+invoke_name: lambda
+is_active: 1
+is_production_or_sandbox: 0
+long_description: ''
+name: AWS-Lambda
+privacy_policy_url: https://yellowant.com/privacy/
+rate_limit: 0.0
+rate_limited: 0
+redirect_uris: http://dc01837f.ngrok.io/yellowant-oauth-redirect/
+short_description: For managing the AWS-Lambda using yellowant
+user_rate_limit: 0.0
+visibility_scope: 0
+website: https://yellowant.com/install/

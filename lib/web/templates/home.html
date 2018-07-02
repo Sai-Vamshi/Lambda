@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Home{% endblock %}
 <!--<base href="/">-->
 {% block base %}<base href="{{base_href}}">{% endblock %}
@@ -60,8 +60,9 @@
 
 
 
+    <link rel="stylesheet" type="text/css" href="{% static "dist/main.css" %}">
 
-  <script src="http://localhost:3011/bundle/main.js"></script>
+  <!--<script src="http://localhost:3011/bundle/main.js"></script>-->
 
 </div>
 
