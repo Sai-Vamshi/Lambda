@@ -49,7 +49,7 @@ YA_APP_ID = str(data_json['application_id'])
 YA_CLIENT_ID = str(data_json['client_id'])
 YA_CLIENT_SECRET = str(data_json['client_secret'])
 YA_VERIFICATION_TOKEN = str(data_json['verification_token'])
-YA_REDIRECT_URL = BASE_URL + "yellowant-ouath-redirect/"
+YA_REDIRECT_URL = BASE_URL + "yellowant-oauth-redirect/"
 
 
 # Quick-start development settings - unsuitable for production
