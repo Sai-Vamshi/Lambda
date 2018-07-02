@@ -23,8 +23,23 @@ BASE_HREF = "/"
 
 # Local deployment settings
 app_name = os.environ.get("HEROKU_APP_NAME")
-BASE_URL = "https://{}.herokuapp.com".format(app_name)
+BASE_URL = "https://{}.herokuapp.com/".format(app_name)
 SITE_PROTOCOL = "https://"
+
+
+
+DEV_ENV = os.environ.get('ENV', 'DEV')
+print(DEV_ENV)
+
+if DEV_ENV=="DEV":
+    BASE_URL = "http://54ddefdd.ngrok.io/"
+    SITE_DOMAIN_URL = "ngrok.io"
+
+elif DEV_ENV=="HEROKU":
+    BASE_URL = "https://{}.herokuapp.com/".format(app_name)
+    app_name = os.environ.get("HEROKU_APP_NAME")
+    SITE_DOMAIN_URL = "herokuapp.com"
+
 
 ### YellowAnt specific settings ###
 # URL to obtain oauth2 access for a YA user
@@ -34,20 +49,7 @@ YA_APP_ID = str(data_json['application_id'])
 YA_CLIENT_ID = str(data_json['client_id'])
 YA_CLIENT_SECRET = str(data_json['client_secret'])
 YA_VERIFICATION_TOKEN = str(data_json['verification_token'])
-YA_REDIRECT_URL = BASE_URL + "yellowantredirecturl/"
-
-
-DEV_ENV = os.environ.get('ENV', 'DEV')
-print(DEV_ENV)
-
-if DEV_ENV=="DEV":
-    BASE_URL = "http://54ddefdd.ngrok.io"
-    SITE_DOMAIN_URL = "ngrok.io"
-
-elif DEV_ENV=="HEROKU":
-    BASE_URL = "https://{}.herokuapp.com/".format(app_name)
-    app_name = os.environ.get("HEROKU_APP_NAME")
-    SITE_DOMAIN_URL = "herokuapp.com"
+YA_REDIRECT_URL = BASE_URL + "yellowant-ouath-redirect/"
 
 
 # Quick-start development settings - unsuitable for production
